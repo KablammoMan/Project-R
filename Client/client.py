@@ -23,6 +23,8 @@ while True:
             "screen": b64dat
         }
         response = requests.post(url, headers=headers, data=json.dumps(data))
-        click = map(int, response.content.decode().split(','));
+        x,y = map(float, response.content.decode().split(','));
+        if x != -1 and y != -1:
+            pyautogui.click(SCREEN_SIZE[0]*x, SCREEN_SIZE[1]*y)
     except Exception as e:
         pass
