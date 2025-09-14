@@ -13,6 +13,7 @@ app.use(express.json({"limit":"1mb"}));
 
 const storage = {};
 const click = {};
+const timestamps = {};
 
 
 app.get("/", (req, res) => {
@@ -45,11 +46,12 @@ app.post("/upload/:hostname", (req, res) => {
     {
         let prevExist = Object.keys(storage).includes(host);
         storage[host] = scdt;
+        timestamps[host] = new Date(Date.now()).toUTCString();
         io.to(`manage-${host}`).emit("imgb64", scdt);
         if (!prevExist)
         {
             click[host] = [-1,-1];
-            io.emit("newclient", host);
+            io.emit("newclient", host, timestamps[host]);
         }
     }
     res.send(`${click[host]}`);
@@ -58,7 +60,7 @@ app.post("/upload/:hostname", (req, res) => {
 
 
 io.on("connection", (socket) => {
-    for (let host in storage) socket.emit("newclient", host);
+    for (let host in storage) socket.emit("newclient", host, timestamps[host]);
     socket.on("manage-host", host => {
         socket.join(`manage-${host}`);
         socket.emit("imgb64", storage[host]);
