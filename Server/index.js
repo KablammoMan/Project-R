@@ -58,7 +58,6 @@ app.post("/upload/:hostname", (req, res) => {
 
 
 io.on("connection", (socket) => {
-    console.log("New user, yippee!!!");
     for (let host in storage) socket.emit("newclient", host);
     socket.on("manage-host", host => {
         socket.join(`manage-${host}`);
