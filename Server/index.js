@@ -64,6 +64,9 @@ io.on("connection", (socket) => {
         socket.join(`manage-${host}`);
         socket.emit("imgb64", storage[host]);
     });
+    socket.on("click", (host, sx, sy) => {
+        click[host] = [sx, sy];
+    });
 });
 
 server.listen(8080, () => {console.log("Server Running on 8080");});
