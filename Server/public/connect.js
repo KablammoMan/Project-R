@@ -1,6 +1,14 @@
 const socket = io();
 const hostname = window.location.href.split('/')[4];
 const img = document.querySelector("#screen");
+const keyMap = {
+    "Meta": "Win",
+    "Control": "Ctrl",
+    "ArrowUp": "Up",
+    "ArrowLeft": "Left",
+    "ArrowRight": "Right",
+    "ArrowDown": "Down"
+}
 
 let lastMDown = -1;
 
@@ -29,15 +37,35 @@ img.addEventListener("mousemove", e => {
 
 img.addEventListener("mousedown", e => {
     e.preventDefault();
-    socket.emit("mdown", hostname);
+    let type = "left";
+    if (e.button == 1) type = "middle";
+    if (e.button == 2) type = "right";
+    socket.emit("mdown", hostname, type);
 });
 
 img.addEventListener("mouseup", e => {
     e.preventDefault();
-    socket.emit("mup", hostname);
+    let type = "left";
+    if (e.button == 1) type = "middle";
+    if (e.button == 2) type = "right";
+    socket.emit("mup", hostname, type);
 });
 
 img.addEventListener("wheel", e => {
     e.preventDefault();
     socket.emit("mscroll", hostname, e.deltaY);
+});
+
+window.addEventListener("keyup", e => {
+    e.preventDefault();
+    let key = e.key;
+    if (Object.keys(keyMap).includes(key)) key = keyMap[key];
+    socket.emit("kup", hostname, key);
+})
+
+window.addEventListener("keydown", e => {
+    e.preventDefault();
+    let key = e.key;
+    if (Object.keys(keyMap).includes(key)) key = keyMap[key];
+    socket.emit("kdown", hostname, key);
 });

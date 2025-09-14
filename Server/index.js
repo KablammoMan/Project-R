@@ -12,7 +12,7 @@ app.use(express.json({"limit":"1mb"}));
 
 
 const storage = {};
-const mouseInfo = {};
+const controlInfo = {};
 const timestamps = {};
 
 
@@ -50,19 +50,29 @@ app.post("/upload/:hostname", (req, res) => {
         io.to(`manage-${host}`).emit("imgb64", scdt);
         if (!prevExist)
         {
-            mouseInfo[host] = {
+            controlInfo[host] = {
                 "pos": [-1, -1],
-                "down": -1,
-                "scroll": 0
+                "down": {
+                    "left": -1,
+                    "middle": -1,
+                    "right": -1
+                },
+                "scroll": 0,
+                "keys": []
             };
             io.emit("newclient", host, timestamps[host]);
         }
     }
-    res.send(mouseInfo[host]);
-    mouseInfo[host] = {
+    res.send(controlInfo[host]);
+    controlInfo[host] = {
         "pos": [-1, -1],
-        "down": -1,
-        "scroll": 0
+        "down": {
+            "left": -1,
+            "middle": -1,
+            "right": -1
+        },
+        "scroll": 0,
+        "keys": []
     };
 });
 
@@ -73,19 +83,25 @@ io.on("connection", (socket) => {
         socket.join(`manage-${host}`);
         socket.emit("imgb64", storage[host]);
     });
-    socket.on("mdown", host => {
-        mouseInfo[host]["down"] = 1;
+    socket.on("mdown", (host, type) => {
+        controlInfo[host]["down"][type] = 1;
+    });
+    socket.on("mup", (host, type) => {
+        if (controlInfo[host]["down"][type] == 1) controlInfo[host]["down"][type] = 2;
+        else controlInfo[host]["down"][type] = 0;
     });
     socket.on("mmove", (host, sx, sy) => {
-        mouseInfo[host]["pos"] = [sx, sy];
-    });
-    socket.on("mup", host => {
-        if (mouseInfo[host]["down"] == 1) mouseInfo[host]["down"] = 2;
-        else mouseInfo[host]["down"] = 0;
+        controlInfo[host]["pos"] = [sx, sy];
     });
     socket.on("mscroll", (host, dir) => {
-        mouseInfo[host]["scroll"] -= dir;
+        controlInfo[host]["scroll"] -= dir;
     })
+    socket.on("kdown", (host, key) => {
+        controlInfo[host]["keys"].push(["down", key]);
+    });
+    socket.on("kup", (host, key) => {
+        controlInfo[host]["keys"].push(["up", key]);
+    });
 });
 
 server.listen(8080, () => {console.log("Server Running on 8080");});
