@@ -6,6 +6,8 @@ import requests
 import pyautogui
 from io import BytesIO
 
+
+# print(pyautogui.KEY_NAMES)
 while True:
     try:
         SCREEN_SIZE = pyautogui.size()
@@ -24,15 +26,22 @@ while True:
         }
         response = requests.post(url, headers=headers, data=json.dumps(data))
         jr = json.loads(response.content.decode())
-        # print(jr)
+        print(jr)
         if jr["pos"] != [-1, -1]:
             pyautogui.moveTo(SCREEN_SIZE[0]*jr["pos"][0], SCREEN_SIZE[1]*jr["pos"][1])
-        if jr["down"] == 0:
-            pyautogui.mouseUp()
-        if jr["down"] == 1:
-            pyautogui.mouseDown()
-        if jr["down"] == 2:
-            pyautogui.click()
+        for k,v in jr["down"].items():
+            if v == 0:
+                pyautogui.mouseUp(button=k)
+            if v == 1:
+                pyautogui.mouseDown(button=k)
+            if v == 2:
+                pyautogui.click(button=k)
         pyautogui.scroll(jr["scroll"])
+        for ev in jr["keys"]:
+            if ev[0] == "up":
+                pyautogui.keyUp(ev[1].lower())
+            else:
+                pyautogui.keyDown(ev[1].lower())
     except Exception as e:
         pass
+    # break
