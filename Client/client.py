@@ -23,8 +23,16 @@ while True:
             "screen": b64dat
         }
         response = requests.post(url, headers=headers, data=json.dumps(data))
-        x,y = map(float, response.content.decode().split(','));
-        if x != -1 and y != -1:
-            pyautogui.click(SCREEN_SIZE[0]*x, SCREEN_SIZE[1]*y)
+        jr = json.loads(response.content.decode())
+        # print(jr)
+        if jr["pos"] != [-1, -1]:
+            pyautogui.moveTo(SCREEN_SIZE[0]*jr["pos"][0], SCREEN_SIZE[1]*jr["pos"][1])
+        if jr["down"] == 0:
+            pyautogui.mouseUp()
+        if jr["down"] == 1:
+            pyautogui.mouseDown()
+        if jr["down"] == 2:
+            pyautogui.click()
+        pyautogui.scroll(jr["scroll"])
     except Exception as e:
         pass
