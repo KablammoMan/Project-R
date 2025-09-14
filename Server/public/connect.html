@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project R: Connection</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.cyan.min.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            overflow-y: hidden;
+        }
+        img {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <img id="screen" width="100px">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/connect.js"></script>
+</body>
+</html>
