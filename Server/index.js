@@ -12,7 +12,7 @@ app.use(express.json({"limit":"1mb"}));
 
 
 const storage = {};
-const click = {};
+const mouseInfo = {};
 const timestamps = {};
 
 
@@ -50,12 +50,20 @@ app.post("/upload/:hostname", (req, res) => {
         io.to(`manage-${host}`).emit("imgb64", scdt);
         if (!prevExist)
         {
-            click[host] = [-1,-1];
+            mouseInfo[host] = {
+                "pos": [-1, -1],
+                "down": -1,
+                "scroll": 0
+            };
             io.emit("newclient", host, timestamps[host]);
         }
     }
-    res.send(`${click[host]}`);
-    click[host] = [-1,-1];
+    res.send(mouseInfo[host]);
+    mouseInfo[host] = {
+        "pos": [-1, -1],
+        "down": -1,
+        "scroll": 0
+    };
 });
 
 
@@ -65,9 +73,19 @@ io.on("connection", (socket) => {
         socket.join(`manage-${host}`);
         socket.emit("imgb64", storage[host]);
     });
-    socket.on("click", (host, sx, sy) => {
-        click[host] = [sx, sy];
+    socket.on("mdown", host => {
+        mouseInfo[host]["down"] = 1;
     });
+    socket.on("mmove", (host, sx, sy) => {
+        mouseInfo[host]["pos"] = [sx, sy];
+    });
+    socket.on("mup", host => {
+        if (mouseInfo[host]["down"] == 1) mouseInfo[host]["down"] = 2;
+        else mouseInfo[host]["down"] = 0;
+    });
+    socket.on("mscroll", (host, dir) => {
+        mouseInfo[host]["scroll"] -= dir;
+    })
 });
 
 server.listen(8080, () => {console.log("Server Running on 8080");});
