@@ -24,6 +24,9 @@ window.addEventListener("resize", e => {
     let rat = Math.min(window.innerWidth/img.width, window.innerHeight/img.height);
     img.width *= rat;
 });
+window.addEventListener("contextmenu", e => {
+    e.preventDefault();
+});
 
 img.addEventListener("mousemove", e => {
     e.preventDefault();
