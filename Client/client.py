@@ -7,7 +7,6 @@ import pyautogui
 from io import BytesIO
 
 
-# print(pyautogui.KEY_NAMES)
 while True:
     try:
         SCREEN_SIZE = pyautogui.size()
@@ -24,9 +23,9 @@ while True:
         data = {
             "screen": b64dat
         }
-        response = requests.post(url, headers=headers, data=json.dumps(data))
+        response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
         jr = json.loads(response.content.decode())
-        print(jr)
+        # print(jr)
         if jr["pos"] != [-1, -1]:
             pyautogui.moveTo(SCREEN_SIZE[0]*jr["pos"][0], SCREEN_SIZE[1]*jr["pos"][1])
         for k,v in jr["down"].items():
@@ -44,4 +43,3 @@ while True:
                 pyautogui.keyDown(ev[1].lower())
     except Exception as e:
         pass
-    # break
